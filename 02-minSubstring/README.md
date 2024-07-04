@@ -25,5 +25,5 @@ Otro ejemplo: si strArr es ["aabdccdbcacd", "aad"], entonces la subcadena más p
 
 - Determinar la subcadena más pequeña de N que contenga todos los caracteres en K.
 
-[NOTE]
+> [NOTE]
 Estas son unas notas
