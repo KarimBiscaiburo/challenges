@@ -24,18 +24,3 @@ Otro ejemplo: si strArr es ["aabdccdbcacd", "aad"], entonces la subcadena más p
 - Utilizar dos punteros como indices dentro de la cadena N
 
 - Determinar la subcadena más pequeña de N que contenga todos los caracteres en K.
-
-> [!NOTE]
-> Estas son unas notas
-
-> [!TIP]
-> Estos son tips
-
-> [!IMPORTANT]
-> Estas son importantes
-
-> [!WARNING]
-> Estas son advertencias
-
-> [!CAUTION]
-> Estas son alertas

@@ -1,125 +1,79 @@
 // CORRER ARCHIVO CON "node index.js"
 
-const arr = ["aabdccdbcacd", "aad"];
-
-minSubstring(arr);
-
-function minSubstring( strArr ) {
-    // Obtenemos el string N a evaluar
+function minSubstring(strArr) {
+    // Obtenemos los dos strings
     const N = strArr[0];
-    const nSeparado = N.split("");
-    // Obtenemos el string K
     const K = strArr[1];
 
-    // Obtenemos un arreglo con [[letras], [cantidades]]
-    const letrasCantidades = conocerCaracteres(K);
+    const lengN = N.length;
 
-    // Necesitamos 2 punteros
-    // Posicion inicial del string N
-    let punteroInicio = 0;
-    // Posicion final del string N
-    let punteroFin = nSeparado.length - 1;
+    // Creamos un objeto donde vamos a almacenar las letras y cantidades de K
+    const chartCountK = {};
 
-    // Tenemos dos cortes, el primero cuando el puntero del inicio se mueve y ya no encuentra la cadena K dentro de N y el segundo cuando el puntero del final ya no encuentra la cadena K dentro de N
-    let corteDeBusqueda = 0;
-
-    // Mientras K exista dentro de N vamos a ir corriendo el puntero del inicio
-    while(corteDeBusqueda !== 1) {
-        // A puntero fin le agregamos 1 porque .slice() no incluye el fin
-        const existe = existeLetrasDentroString(letrasCantidades, nSeparado.slice(punteroInicio, punteroFin + 1));
-        // Corta el bucle cuando ya no se pude mover el puntero, sino lo movemos una posicion
-        if(existe) punteroInicio++;
-        else corteDeBusqueda = 1;
-    }
-    
-
-    // Mientras K exista dentro de N vamos a ir corriendo el puntero del final
-    while(corteDeBusqueda !== 2) {
-        const existe = existeLetrasDentroString(letrasCantidades, nSeparado.slice(punteroInicio, punteroFin + 1));
-        
-        // Corta el bucle cuando ya no se pude mover el puntero, sino lo movemos una posicion
-        if(existe) punteroFin--;
-        else corteDeBusqueda = 2;
+    // Obtenemos las letras y cantidades necesarias
+    for (const chart of K) {
+        // Si no existe en el objeto la letra, lo creamos y le damos como valor inicial 0
+        chartCountK[chart] = (chartCountK[chart] || 0) + 1;
     }
 
-    // console.log(punteroInicio, punteroFin)
-}
+    // Obtenemos la cantidad de caracteres unicos que necesitamos
+    const requiredChars = Object.keys(chartCountK).length;
 
-// Evaluar si existe una cantidad de letras en un string y devuelve true o false
-function existeLetrasDentroString( letrasCantidades, arrStringEvaluar ) {
-    // Devuelve true o false si existe o no
-    let existe = true;
+    // Aca vamos a ir guardando los caracteres y sus cantidades que existan dentro de la cadena que estamos evaluando
+    const windowCharCount = {};
 
-    
-    const letras = letrasCantidades[0];
-    const cantidades = letrasCantidades[1];
+    // Usamos esta variable para contar cuantos caracteres existen dentro del rango que estamos evaluando y que tenga la cantidad necesaria
+    let formed = 0;
 
-    console.log(letras, cantidades)
-    
-    // Empezamos a recorrer por cada letra a evaluar
-    for( let i = 0; i < letras.length; i++ ) {
-        // Si ya no existe cortamos el bucle
-        if(!existe) break;
+    // Declaramos dos punteros 
+    let left = 0, right = 0;
 
-        let countCantidad = 0;
+    // Declaramos el tamaño de la longitud minima donde contiene los caracteres (inicia en infinito ya que no sabemos, al principio, cual es la minima)
+    let minLen = Infinity;
 
-        // Tomando esa letras, recorremos el arreglo a evaluar y contamos cuantas veces existe esa letra
-        for ( let count = 0; count < arrStringEvaluar.length; count++ ) {
-            //Si la letra es la misma, sumamos 1 a cantidad
-            if(letras[i] === arrStringEvaluar[count]) countCantidad++;
+    // Declaramos la variable donde se va a almacenar el string con la cadena minima
+    let minWindow = "";
 
-            // Si las cantidades son iguales cortamos el bucle porque ya coincide
-            if (countCantidad === cantidades[i]) break;
 
-            // Si no coinciden las cantidades y ya es la ultima vuelta entonces cortamos la funcion y devolvemos false
-            if (countCantidad < cantidades[i] && count === arrStringEvaluar.length - 1) {
-                existe = false;
-            }
+    while( right < lengN ) {
+        const charRight = N[right];
+        // Agregamos cada letra a un objeto y contamos cuantas veces se encuentra dentro del rango que evaluamos
+        windowCharCount[charRight] = (windowCharCount[charRight] || 0) + 1;
+
+        // Verificamos que el caracter exista dentro de los caracteres a buscar y ademas evaluamos si hay la misma cantidad de caracteres requeridos. 
+        if(charRight in chartCountK && windowCharCount[charRight] === chartCountK[charRight]) {
+            formed += 1;
         }
-    }
-    return existe;
-}
 
-// Usamos esta funcion para obtener las letras del string K y cuantas veces estan repetidas
-function conocerCaracteres( str ) {
-    // Agarramos el string y lo separamos por caracteres obteniendo un nuevo arreglo con cada letra
-    const arregloCaracteres = str.split("");
+        // En el momento que se encuentren los caracteres requeridos dentro de la cadena que estamos evaluando, empezamos a mover el puntero de la izquierda para buscar la cadena mas chica
+        while (left <= right && formed === requiredChars) {
+            const charLeft = N[left];
 
-    // Creamos un arreglo vacio donde vamos a almacenar las letras y cantidades
-    const letras = [];
-    const cantidades = [];
-    
-    // Por cada posicion del arreglo con los caracteres hacemos:
-    for(let i = 0; i < arregloCaracteres.length; i++) {
-        // Evaluamos primero que esa letra no exista en donde lo vamos a almacenar
-        if (!evaluarExisteLetra(arregloCaracteres[i], letras)) {
+            // Ahora evaluamos si ya existe una cadena mas chica previamente y en caso que no la haya, agregamos esta.
 
-            // Guardamos esa letra en una variable temporal
-            let caracter = arregloCaracteres[i];
-            // Guardamos la cantidad de veces que existe esa letra dentro de los caracteres
-            let contadorCantidad = 0;
-
-            // Empezamos a recorrer cada posicion de caracter buscando coincidencias, si existe sumamos 1 a la cantidad
-            for(let count = i; count < arregloCaracteres.length; count++) {
-                if (caracter === arregloCaracteres[count]) contadorCantidad++;
+            // Esta cuenta se hace para determinar la longitud de la cadena
+            if (right - left + 1 < minLen) {
+                minLen = right - left + 1;
+                // Le sumamos 1 porque substring no toma  el ultimo valor
+                minWindow = N.substring(left, right + 1);
             }
 
-            // Añadimos la letra y la cantidad
-            letras.push(caracter);
-            cantidades.push(contadorCantidad);
+            // Ahora le restamos 1 a la cantidad del caracter que estamos evaluando para verificar si deja de existir K dentro de este
+            windowCharCount[charLeft] -= 1;
+            // Primero verificamos que exista dentro de los caracteres que buscamos y luego si es menor a la cantidad requerida
+            if (charLeft in chartCountK && windowCharCount[charLeft] < chartCountK[charLeft]) {
+                // Si esto se cumple decrementamos formed para indicar que ya no existen los caracteres requeridos dentro de esta cadena
+                formed -= 1;
+            }
+            // Corremos el puntero
+            left += 1;
         }
+        right += 1;
     }
-    // Retornamos las letras y cantidades
-    return [letras, cantidades];
+
+    return minWindow;
 }
 
-// Devuelve true o false si la letra esta dentro del arreglo
-function evaluarExisteLetra( letra, arrLetras ) {
-    let existe = false;
-
-    for(let i = 0; i < arrLetras.length; i++) {
-        if (letra === arrLetras[i]) existe = true;
-    }  
-
-    return existe;
-}
+console.log(minSubstring(["aabdccdbcacd", "aad"])); // Output: "aabd"
+console.log(minSubstring(["aaabaaddae", "aed"]));  // Output: "dae"
+console.log(minSubstring(["aabdcfjgadadcdbcacd", "aadf"])); // Output: "aabdcf"
